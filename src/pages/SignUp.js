@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -30,9 +31,11 @@ export const SignUp = () => {
     }
 
     try {
+        console.log(email, username, password);
       await signUp(email, username, password);
       navigate("/login");
     } catch (error) {
+        console.log(error)
         if (error.response.status == 401) {
           setErrorMessage("User with this email already exists"); 
         } else {
@@ -44,6 +47,11 @@ export const SignUp = () => {
   return (
     <ThemeProvider theme={defaultTheme}>
     <Container component="main" maxWidth="xs">
+        {errorMessage && ( // Conditionally render the error message
+          <Alert variant="danger" onClose={() => setErrorMessage(undefined)} dismissible>
+            {errorMessage}
+          </Alert>
+        )}
       <CssBaseline />
       <Box
         sx={{
@@ -66,7 +74,7 @@ export const SignUp = () => {
                 label="Username"
                 name="username"
                 autoComplete="username"
-                onChange = {value => setUsername(value)}
+                onChange = {event => setUsername(event.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -77,7 +85,7 @@ export const SignUp = () => {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
-                onChange = {value => setEmail(value)}
+                onChange = {event => setEmail(event.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -89,7 +97,7 @@ export const SignUp = () => {
                 type="password"
                 id="password"
                 autoComplete="new-password"
-                onChange = {value => setPassword(value)}
+                onChange = {event => setPassword(event.target.value)}
               />
             </Grid>
           </Grid>

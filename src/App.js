@@ -8,6 +8,7 @@ import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { NavBar } from './components/NavBar'
 import { Layout } from './components/Layout'
+import Restaurant from './pages/Restaurant'
 import useToken from './hooks/useToken';
 import PrivateRoute from './PrivateRoute';
 
@@ -24,6 +25,7 @@ function App() {
                 <Route index element={<PrivateRoute> <Home /> </PrivateRoute>} />
                 <Route path='/delivery' element={<PrivateRoute> <Delivery /> </PrivateRoute>} />
                 <Route path='/order' element={<PrivateRoute><Order /> </PrivateRoute>} />
+                <Route path='/restaurant/:id' element={<PrivateRoute><Restaurant /> </PrivateRoute>} />
                 <Route path='/login' element={<Login token={token} setToken={setToken} />} />
                 <Route path='/signup' element={<SignUp />} />
               </Route>

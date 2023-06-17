@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Alert from '@mui/material/Alert';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
@@ -18,7 +19,7 @@ const defaultTheme = createTheme();
 
 
 export const Login = ({token, setToken}) => {
-  const [email, setEmail] = useState();
+  const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [errorMessage, setErrorMessage] = useState();
 
@@ -27,11 +28,12 @@ export const Login = ({token, setToken}) => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!username || !password) return;
   
     try {
-      const data = await signIn(email, password);
-      setToken({ token: data.accessToken });
+      const data = await signIn(username, password);
+      console.log(data);
+      setToken({ token: data.jwt });
       navigate(location.state?.from?.pathname || "/usage", { replace: true });
     } catch (error) {
       if (error.response.status === 401) {
@@ -48,6 +50,11 @@ export const Login = ({token, setToken}) => {
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
+        {errorMessage && ( // Conditionally render the error message
+          <Alert variant="danger" onClose={() => setErrorMessage(undefined)} dismissible>
+            {errorMessage}
+          </Alert>
+        )}
         <CssBaseline />
         <Box
           sx={{
@@ -70,7 +77,7 @@ export const Login = ({token, setToken}) => {
               name="email"
               autoComplete="email"
               autoFocus
-              onChange = {value => setEmail(value)}
+              onChange = {event => setUsername(event.target.value)}
             />
             <TextField
               margin="normal"
@@ -81,7 +88,7 @@ export const Login = ({token, setToken}) => {
               type="password"
               id="password"
               autoComplete="current-password"
-              onChange = {value => setPassword(value)}
+              onChange = {event => setPassword(event.target.value)}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

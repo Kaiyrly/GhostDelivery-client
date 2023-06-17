@@ -23,7 +23,13 @@ export const NavBar = ({ token, setToken }) => {
             <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
             <Link to="/delivery" style={{ color: 'inherit', textDecoration: 'none' }}>Delivery</Link>
             <Link to="/order" style={{ color: 'inherit', textDecoration: 'none' }}>Order</Link>
-            <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Login</Link>
+            {token ? (
+                <Button variant="outline-primary" onClick={handleLogout}>
+                    Log Out
+                </Button>
+                ) : (
+                <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Logout</Link>
+            )}
           </Box>
         </Typography>
         {token ? (
