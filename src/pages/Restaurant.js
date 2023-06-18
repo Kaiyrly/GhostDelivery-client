@@ -6,6 +6,7 @@ import { styled } from '@mui/system';
 import useToken from '../hooks/useToken';
 import { restaurants } from '../constants';
 import { placeOrder } from '../services/api';
+import { getUserIdFromToken } from '../helpers';
 
 
 const Title = styled(Typography)({
@@ -34,6 +35,8 @@ const Restaurant = () => {
     const id = params.id;
     const [order, setOrder] = useState({});
     const [fee, setFee] = useState(2000);
+    const [comments, setComments] = useState("");
+    const [address, setAddress] = useState("");
 
     const restaurant = restaurants[id];
 
@@ -45,7 +48,8 @@ const Restaurant = () => {
     };
 
     const handleOrder = async () => {
-        const orderr = {restaurant: restaurant.title, itemQuantities: order, fee: fee};
+        const userId = getUserIdFromToken(token);
+        const orderr = {restaurant: restaurant.title, itemQuantities: order, fee: fee, comments: comments, userId: userId, address: address};
         try {
             const data = await placeOrder(token, orderr);
             console.log(data);
@@ -84,6 +88,28 @@ const Restaurant = () => {
             autoComplete="fee"
             autoFocus
             onChange = {event => setFee(event.target.value)}
+        />
+        <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="comments"
+            label="Add comments"
+            name="comments"
+            autoComplete="comments"
+            autoFocus
+            onChange = {event => setComments(event.target.value)}
+        />
+        <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="address"
+            label="Add address"
+            name="address"
+            autoComplete="address"
+            autoFocus
+            onChange = {event => setAddress(event.target.value)}
         />
         <OrderButton variant="contained" color="primary" onClick = {handleOrder}>Order</OrderButton>
         </Box>

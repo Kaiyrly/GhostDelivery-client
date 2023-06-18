@@ -26,7 +26,7 @@ export const signUp = async(email, username, password) => {
 }
 
 export const placeOrder = async (token, order) => {
-    console.log(token)
+    console.log(order)
   try {
     const { data } = await API.post(`${API_URL}/orders`, order, {
       headers: { Authorization: `Bearer ${token}` }
@@ -38,9 +38,10 @@ export const placeOrder = async (token, order) => {
   }
 };
 
-export const takeOrder = async (token, orderId) => {
+export const takeOrder = async (token, orderId, userId) => {
+    console.log(userId)
   try {
-    const { data } = await API.post(`${API_URL}/orders/${orderId}/take`, {}, {
+    const { data } = await API.post(`${API_URL}/orders/${orderId}/take/${userId}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return data;
