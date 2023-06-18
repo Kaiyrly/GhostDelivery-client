@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Card, CardContent, Typography, Tabs, Tab } from '@mui/material';
 import { styled } from '@mui/system';
-import { getAllOrders, takeOrder } from '../services/api';
+import { getAllOrders, takeOrder, getUserRating } from '../services/api';
 import useToken from '../hooks/useToken';
 import { getUserIdFromToken } from '../helpers';
 
@@ -19,6 +19,7 @@ const myOrders = [];
 
 
 const DeliveryPage = () => {
+  const [userRating, setUserRating] = useState(0);
   const [tab, setTab] = useState(0);
   const [orders, setOrders] = useState([]);
   const [availableOrders, setAvailableOrders] = useState([]);
@@ -40,20 +41,23 @@ const DeliveryPage = () => {
   };
 
   useEffect(() => {
-    const userId = getUserIdFromToken(token);
-    const fetchOrders = async () => {
-      try { 
-          const allOrders = await getAllOrders(token);
-          setAvailableOrders(allOrders.filter(order => order.delivererId !== userId).filter(order => order.status === 'PLACED'));
-          setMyOrders(allOrders.filter(order => order.delivererId === userId));
-          console.log(allOrders)
-          setOrders(allOrders);
+    const fetchOrdersAndRating = async () => {
+      const userId = getUserIdFromToken(token);
+      try {
+        const allOrders = await getAllOrders(token);
+        const rating = await getUserRating(userId, token); 
+  
+        setAvailableOrders(allOrders.filter(order => order.delivererId !== userId).filter(order => order.status === 'PLACED'));
+        setMyOrders(allOrders.filter(order => order.delivererId === userId));
+        setUserRating(rating);
+        console.log(allOrders)
+        setOrders(allOrders);
       } catch(error) {
         console.log(error);
       }
     };
-
-    fetchOrders();
+  
+    fetchOrdersAndRating();
   }, []);
 
   return (
@@ -70,9 +74,15 @@ const DeliveryPage = () => {
             <Typography variant="body2">Delivery Fee: ${order.fee}</Typography>
             <Typography variant="body2">Delivery Address: {order.address}</Typography>
             <Typography variant="body2">Order Time: {order.orderTime}</Typography>
-            <Button variant="contained" color="primary" onClick={() => handleTakeOrder(order)}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => handleTakeOrder(order)}
+              disabled={userRating < 3}
+            >
               Take Order
             </Button>
+            {userRating < 3 && <Typography variant="body2" color="error">Your rating is too low, you cannot take orders</Typography>}
           </CardContent>
         </OrderCard>
       ))}

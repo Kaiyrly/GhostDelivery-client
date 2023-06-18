@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Dialog, DialogActions, DialogContent, DialogTitle, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { Container, TextField, Box, Tab, Tabs, Button, Card, CardContent, Typography, } from '@mui/material';
 import { styled } from '@mui/system';
 import RestaurantList from '../components/RestaurantList';
-import { getOrdersByUser, completeOrder } from '../services/api';
+import { getOrdersByUser, completeOrder, updateUserRating } from '../services/api';
 import useToken from '../hooks/useToken';
 import { getUserIdFromToken } from '../helpers';
 
@@ -34,10 +35,10 @@ const OrderList = ({ orders, orderComplete }) => {
           <CardContent>
             <Typography variant="h6">Restaurant: {order.restaurant}</Typography>
             <Typography variant="body2">Delivery Fee: ₩{order.fee}</Typography>
-            <Typography variant="body2">Delivery Address: {order.address}</Typography>
+            <Typography variant="body2">Delivery Address: {order.adress}</Typography>
             <Typography variant="body2">Order Time: {order.orderTime}</Typography>
             <Typography variant="body2">Status: {order.status}</Typography>
-            {order.status !== 'DELIVERED' && <Button variant="contained" color="primary" onClick={() => orderComplete(order)}>
+            {order.status === 'IN_PROGRESS' && <Button variant="contained" color="primary" onClick={() => orderComplete(order)}>
               Order Completed!
             </Button>}
           </CardContent>
@@ -53,6 +54,34 @@ const Order = () => {
   const [userOrders, setUserOrders] = useState([]);
   const { token } = useToken();
   const userId = getUserIdFromToken(token);
+  const [open, setOpen] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(5); // default rating
+  const [completedOrder, setCompletedOrder] = useState({});
+
+  const handleOpen = (order) => {
+    setCompletedOrder(order)
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleRatingChange = (event) => {
+    setSelectedRating(event.target.value);
+  };
+
+  const handleSubmitRating = async (order) => {
+    console.log(order.delivererId)
+    try {
+      const data = await updateUserRating(order.delivererId, selectedRating, token);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      handleClose();
+    }
+  }
 
 
   useEffect(() => {
@@ -73,6 +102,7 @@ const Order = () => {
   };
 
   const orderComplete = async (order) => {
+    console.log(order)
     try {
       const data = await completeOrder(token, order.id);
       console.log(data);
@@ -95,8 +125,32 @@ const Order = () => {
           <Tab label="My Orders" />
         </Tabs>
         {currentTab === 0 && <RestaurantList />}
-        {currentTab === 1 && <OrderList orders={userOrders} orderComplete={orderComplete}/>
-}
+        {currentTab === 1 && <OrderList orders={userOrders} orderComplete={(order) => { orderComplete(order); handleOpen(order); }}/>}
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Rate the deliverer</DialogTitle>
+          <DialogContent>
+            <RadioGroup
+              aria-label="deliverer-rating"
+              name="deliverer-rating"
+              value={selectedRating}
+              onChange={handleRatingChange}
+            >
+              <FormControlLabel value="1" control={<Radio />} label="1" />
+              <FormControlLabel value="2" control={<Radio />} label="2" />
+              <FormControlLabel value="3" control={<Radio />} label="3" />
+              <FormControlLabel value="4" control={<Radio />} label="4" />
+              <FormControlLabel value="5" control={<Radio />} label="5" />
+            </RadioGroup>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => handleSubmitRating(completedOrder)} color="primary">
+              Submit Rating
+            </Button>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

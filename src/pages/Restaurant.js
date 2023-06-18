@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import { Box, Button, Card, CardContent, CardMedia, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import useToken from '../hooks/useToken';
 import { restaurants } from '../constants';
-import { placeOrder } from '../services/api';
+import { placeOrder, getUserRating } from '../services/api';
 import { getUserIdFromToken } from '../helpers';
 
 
@@ -37,6 +37,20 @@ const Restaurant = () => {
     const [fee, setFee] = useState(2000);
     const [comments, setComments] = useState("");
     const [address, setAddress] = useState("");
+    const [userRating, setUserRating] = useState(0);
+
+    useEffect(() => {
+    const fetchRating = async () => {
+        const userId = getUserIdFromToken(token);
+        try {
+        const rating = await getUserRating(userId, token); // Replace getUserRating with your actual function
+        setUserRating(rating);
+        } catch(error) {
+        console.log(error);
+        }
+    };
+    fetchRating();
+    }, [token]);
 
     const restaurant = restaurants[id];
 
@@ -111,7 +125,15 @@ const Restaurant = () => {
             autoFocus
             onChange = {event => setAddress(event.target.value)}
         />
-        <OrderButton variant="contained" color="primary" onClick = {handleOrder}>Order</OrderButton>
+            <OrderButton 
+                variant="contained" 
+                color="primary" 
+                onClick={handleOrder} 
+                disabled={userRating < 3}  // Disable button if rating is less than 3
+            >
+                Order
+            </OrderButton>
+            {userRating < 3 && <Typography variant="body2" color="error">Your rating is too low, you cannot place orders</Typography>}
         </Box>
     );
 };

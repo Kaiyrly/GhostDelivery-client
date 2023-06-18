@@ -110,3 +110,27 @@ export const getOrdersByRestaurant = async (token, restaurant) => {
     throw error;
   }
 };
+
+export const getUserRating = async (userId, token) => {
+    try {
+      const { data } = await API.get(`/ratings/${userId}/rating`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return data;
+    } catch (error) {
+      console.error('Error getting user rating:', error);
+      throw error;
+    }
+  };
+  
+  export const updateUserRating = async (userId, rating, token) => {
+    try {
+      const { data } = await API.post(`/ratings/${userId}/${rating}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return data;
+    } catch (error) {
+      console.error('Error updating user rating:', error);
+      throw error;
+    }
+  };
